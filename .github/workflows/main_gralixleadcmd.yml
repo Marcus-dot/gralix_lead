@@ -34,8 +34,8 @@ jobs:
 
       - name: Run Django migrations
         run: |
-          python manage.py makemigrations --noinput
-          python manage.py migrate --noinput
+          python manage.py makemigrations
+          python manage.py migrate
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
