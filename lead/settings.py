@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-f0qopkb0u(gda(9=04o9z(^^sp3x^+os+y#w3)nv%c5l+uui9t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['gralixleadcmd-d0a5d3hucjdygxah.canadacentral-01.azurewebsites.net']
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -126,7 +127,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = [BASE_DIR / 'staticfiles']
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Additional places where static files are stored
 STATICFILES_DIRS = [
