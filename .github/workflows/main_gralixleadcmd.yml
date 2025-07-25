@@ -31,6 +31,11 @@ jobs:
       
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Run Django migrations
+        run: |
+          python manage.py makemigrations --noinput
+          python manage.py migrate --noinput
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
