@@ -8,45 +8,207 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
+        :root {
+            --brand-blue: #222551;
+            --brand-orange: #e85c29;
+            --brand-orange-light: #ff7847;
+        }
+        
         .login-container {
             min-height: 100vh;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-        }
-        .login-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #222551 0%, #2d325f 50%, #3a4073 100%);
+            position: relative;
             overflow: hidden;
         }
-        .login-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 2rem;
-            text-align: center;
+        
+        /* Animated background elements */
+        .login-container::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(232, 92, 41, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+            animation: float 6s ease-in-out infinite;
         }
+        
+        .login-container::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(232, 92, 41, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -50px;
+            left: -50px;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            50% {
+                transform: translate(30px, 30px) rotate(180deg);
+            }
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #fff3f0 0%, #fef3c7 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-bottom: 3px solid var(--brand-orange);
+        }
+        
         .company-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--brand-blue) 0%, #2d325f 100%);
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(34, 37, 81, 0.3);
+            animation: pulse 3s ease-in-out infinite;
         }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 10px 25px -5px rgba(34, 37, 81, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 35px -5px rgba(232, 92, 41, 0.4);
+            }
+        }
+        
+        .company-logo i {
+            font-size: 3rem;
+        }
+        
+        .login-header h2 {
+            color: var(--brand-blue);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-header p {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
         .form-floating > label {
-            color: #6c757d;
+            color: #6b7280;
+            font-weight: 500;
         }
+        
+        .form-control:focus {
+            border-color: var(--brand-orange);
+            box-shadow: 0 0 0 0.25rem rgba(232, 92, 41, 0.15);
+        }
+        
         .btn-login {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-orange-light) 100%);
             border: none;
-            padding: 12px;
-            font-weight: 600;
+            padding: 14px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(232, 92, 41, 0.3);
         }
+        
         .btn-login:hover {
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            background: linear-gradient(135deg, var(--brand-orange-light) 0%, var(--brand-orange) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(232, 92, 41, 0.4);
         }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
         .alert {
+            border-radius: 12px;
+            border: 2px solid;
+            font-weight: 500;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-color: #dc2626;
+            color: #991b1b;
+        }
+        
+        .division-badges {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .division-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .division-badge-tech {
+            background: rgba(2, 132, 199, 0.9);
+            color: white;
+        }
+        
+        .division-badge-actuarial {
+            background: rgba(5, 150, 105, 0.9);
+            color: white;
+        }
+        
+        .division-badge-capital {
+            background: rgba(147, 51, 234, 0.9);
+            color: white;
+        }
+        
+        .security-badge {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .login-form {
+            padding: 2.5rem;
+        }
+        
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-control {
             border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            padding: 1rem 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--brand-orange);
         }
     </style>
 </head>
@@ -58,13 +220,13 @@
                     <div class="login-card">
                         <div class="login-header">
                             <div class="company-logo">
-                                <i class="bi bi-building text-white fs-1"></i>
+                                <i class="bi bi-building text-white"></i>
                             </div>
                             <h2 class="mb-1">Gralix Holdings</h2>
-                            <p class="text-muted mb-0">Lead Management System</p>
+                            <p class="mb-0">Lead Management System</p>
                         </div>
                         
-                        <div class="p-4">
+                        <div class="login-form">
                             {% if errors %}
                                 <div class="alert alert-danger">
                                     <i class="bi bi-exclamation-triangle me-2"></i>
@@ -79,9 +241,9 @@
                             <form method="post">
                                 {% csrf_token %}
                                 <div class="form-floating mb-3">
-                                    <input type="username" class="form-control" id="username" name="username" placeholder="name@example.com" required>
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="username" required>
                                     <label for="username">
-                                        <i class="bi bi-envelope me-2"></i>User Name
+                                        <i class="bi bi-person me-2"></i>Username
                                     </label>
                                 </div>
                                 
@@ -99,7 +261,7 @@
                             </form>
                             
                             <div class="text-center mt-4">
-                                <small class="text-muted">
+                                <small class="security-badge text-muted">
                                     <i class="bi bi-shield-check me-1"></i>
                                     Secure Personnel Login
                                 </small>
@@ -108,21 +270,15 @@
                     </div>
                     
                     <div class="text-center mt-4">
-                        <div class="row text-white-50">
-                            <div class="col-4">
-                                <div class="badge bg-primary bg-opacity-25 text-white px-3 py-2 w-100">
-                                    Gralix Tech
-                                </div>
+                        <div class="division-badges">
+                            <div class="division-badge division-badge-tech">
+                                <i class="bi bi-laptop me-1"></i> Gralix Tech
                             </div>
-                            <div class="col-4">
-                                <div class="badge bg-success bg-opacity-25 text-white px-3 py-2 w-100">
-                                    Gralix Actuarial
-                                </div>
+                            <div class="division-badge division-badge-actuarial">
+                                <i class="bi bi-calculator me-1"></i> Gralix Actuarial
                             </div>
-                            <div class="col-4">
-                                <div class="badge bg-warning bg-opacity-25 text-white px-3 py-2 w-100">
-                                    Gralix Capital
-                                </div>
+                            <div class="division-badge division-badge-capital">
+                                <i class="bi bi-graph-up me-1"></i> Gralix Capital
                             </div>
                         </div>
                     </div>

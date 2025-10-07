@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-f0qopkb0u(gda(9=04o9z(^^sp3x^+os+y#w3)nv%c5l+uui9t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['gralixleadcmd-d0a5d3hucjdygxah.canadacentral-01.azurewebsites.net']
+ALLOWED_HOSTS = ['gralixleadcmd-d0a5d3hucjdygxah.canadacentral-01.azurewebsites.net', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -119,17 +119,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATIC_ROOT = [BASE_DIR / 'staticfiles']
-#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Additional places where static files are stored
 STATICFILES_DIRS = [
