@@ -30,6 +30,14 @@
                         <div class="personnel-avatar me-3" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#userProfileModal">
                             {{ user.get_avatar }}
                         </div>
+                        
+                        <!-- 🆕 NEW: Theme Toggle Button -->
+                        <div class="theme-toggle me-3" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+                            <div class="theme-toggle-slider">
+                                <i class="bi bi-moon-fill" id="themeIcon"></i>
+                            </div>
+                        </div>
+                        
                         <div class="dropdown">
                             <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="bi bi-gear"></i>

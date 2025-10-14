@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +9,15 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{% static 'leads/css/style.css' %}" rel="stylesheet">
+    
+    <!-- 🆕 NEW: Theme Initialization Script (Must run ASAP to prevent flash) -->
+    <script>
+        // Initialize theme immediately to prevent flash of wrong theme
+        (function() {
+            const savedTheme = localStorage.getItem('gralix-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -75,6 +84,52 @@
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 🆕 NEW: Global Theme Toggle Functionality -->
+    <script>
+        // ============================================
+        // THEME TOGGLE FUNCTIONALITY (GLOBAL)
+        // ============================================
+        
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            const themeIcon = document.getElementById('themeIcon');
+            
+            // Set new theme
+            html.setAttribute('data-theme', newTheme);
+            
+            // Update icon with animation (if icon exists)
+            if (themeIcon) {
+                if (newTheme === 'light') {
+                    themeIcon.className = 'bi bi-sun-fill';
+                } else {
+                    themeIcon.className = 'bi bi-moon-fill';
+                }
+            }
+            
+            // Save preference to localStorage
+            localStorage.setItem('gralix-theme', newTheme);
+        }
+        
+        // Update icon on page load (if icon exists)
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('gralix-theme') || 'dark';
+            const themeIcon = document.getElementById('themeIcon');
+            
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            if (themeIcon) {
+                if (savedTheme === 'light') {
+                    themeIcon.className = 'bi bi-sun-fill';
+                } else {
+                    themeIcon.className = 'bi bi-moon-fill';
+                }
+            }
+        });
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

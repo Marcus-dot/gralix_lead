@@ -1338,3 +1338,41 @@ function getDivisionLabel(division) {
 function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// ============================================
+// THEME TOGGLE FUNCTIONALITY
+// ============================================
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const themeIcon = document.getElementById('themeIcon');
+
+    // Set new theme
+    html.setAttribute('data-theme', newTheme);
+
+    // Update icon with animation
+    if (newTheme === 'light') {
+        themeIcon.className = 'bi bi-sun-fill';
+    } else {
+        themeIcon.className = 'bi bi-moon-fill';
+    }
+
+    // Save preference to localStorage
+    localStorage.setItem('gralix-theme', newTheme);
+}
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', function () {
+    const savedTheme = localStorage.getItem('gralix-theme') || 'dark';
+    const themeIcon = document.getElementById('themeIcon');
+
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    if (savedTheme === 'light') {
+        themeIcon.className = 'bi bi-sun-fill';
+    } else {
+        themeIcon.className = 'bi bi-moon-fill';
+    }
+});
