@@ -107,6 +107,21 @@ class Lead(models.Model):
         ('capital', 'Gralix Capital'),
     ]
     
+    # 🆕 NEW: Probability of Completion choices (0% to 100% in increments of 10%)
+    PROBABILITY_CHOICES = [
+        (0, '0%'),
+        (10, '10%'),
+        (20, '20%'),
+        (30, '30%'),
+        (40, '40%'),
+        (50, '50%'),
+        (60, '60%'),
+        (70, '70%'),
+        (80, '80%'),
+        (90, '90%'),
+        (100, '100%'),
+    ]
+    
     company = models.CharField(max_length=200)
     contact_name = models.CharField(max_length=100, blank=True)
     position = models.CharField(max_length=100, blank=True)
@@ -117,6 +132,14 @@ class Lead(models.Model):
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     division = models.CharField(max_length=20, choices=DIVISION_CHOICES)
     deal_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+    # 🆕 NEW: Probability of Completion field (fixed at lead creation, doesn't change)
+    probability_of_completion = models.IntegerField(
+        choices=PROBABILITY_CHOICES,
+        default=0,
+        help_text="Probability of closing this deal (set once at lead creation)"
+    )
+    
     last_contact = models.DateField(null=True, blank=True)
     assigned_to = models.ForeignKey(Personnel, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_leads')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='leads')

@@ -435,7 +435,7 @@ function renderLeadsTable() {
 
         html += '<td><span class="badge division-' + lead.division + '">' + getDivisionLabel(lead.division) + '</span></td>';
 
-        // Product column - NEW
+        // Product column
         html += '<td class="text-center">';
         if (lead.product_name) {
             html += '<span class="badge bg-secondary">' + lead.product_name + '</span>';
@@ -457,6 +457,15 @@ function renderLeadsTable() {
         html += '<td><span class="priority-' + lead.priority + '">' + lead.priority.toUpperCase() + '</span></td>';
 
         html += '<td><strong>' + formatCurrency(lead.deal_value) + '</strong></td>';
+
+        // 🆕 NEW: Probability of Completion column
+        html += '<td class="text-center">';
+        var probability = lead.probability_of_completion !== undefined ? lead.probability_of_completion : 0;
+        var probabilityColor = probability >= 70 ? 'success' : probability >= 40 ? 'warning' : 'secondary';
+        html += '<span class="badge bg-' + probabilityColor + '">';
+        html += '<i class="bi bi-percent me-1"></i>' + probability + '%';
+        html += '</span>';
+        html += '</td>';
 
         html += '<td>';
         if (lead.follow_up_date) {
@@ -496,7 +505,7 @@ function renderLeadsTable() {
 
     tbody.innerHTML = html;
 }
-// here.....
+
 async function showLeadDetail(leadId) {
     currentDetailLeadId = leadId;
     var lead = findLeadById(leadId);
@@ -526,6 +535,16 @@ async function showLeadDetail(leadId) {
     html += '</div>';
     html += '<div class="col-md-4 text-end">';
     html += '<h3 class="text-success mb-2">' + formatCurrency(lead.deal_value) + '</h3>';
+
+    // 🆕 NEW: Show probability in detail modal
+    var probability = lead.probability_of_completion !== undefined ? lead.probability_of_completion : 0;
+    var probabilityColor = probability >= 70 ? 'success' : probability >= 40 ? 'warning' : 'secondary';
+    html += '<div class="mb-2">';
+    html += '<span class="badge bg-' + probabilityColor + ' fs-6">';
+    html += '<i class="bi bi-percent me-1"></i>' + probability + '% Probability';
+    html += '</span>';
+    html += '</div>';
+
     html += '<div class="mb-2">' + getStatusBadge(lead.status) + '</div>';
 
     html += '<div class="stage-progress mb-2">';
@@ -823,6 +842,14 @@ async function saveLead() {
         return;
     }
 
+    // 🆕 NEW: Validate probability field
+    var probabilityValue = document.getElementById('probabilityOfCompletion').value;
+    if (probabilityValue === '') {
+        alert('Please select a probability of completion');
+        document.getElementById('probabilityOfCompletion').focus();
+        return;
+    }
+
     var productValue = document.getElementById('product').value;
 
     var formData = {
@@ -832,9 +859,10 @@ async function saveLead() {
         email: document.getElementById('email').value.trim(),
         follow_up_date: document.getElementById('followupDate').value || null,
         division: document.getElementById('division').value,
-        product: productValue ? parseInt(productValue) : null,  // NEW: Include product
+        product: productValue ? parseInt(productValue) : null,
         priority: document.getElementById('priority').value,
         deal_value: parseFloat(document.getElementById('dealValue').value) || 0,
+        probability_of_completion: parseInt(probabilityValue),  // 🆕 NEW: Include probability
         comments: document.getElementById('comments').value.trim(),
         assigned_to: parseInt(assignedTo)
     };
@@ -1189,10 +1217,11 @@ function clearForm() {
     document.getElementById('email').value = '';
     document.getElementById('followupDate').value = '';
     document.getElementById('division').value = 'tech';
-    document.getElementById('product').value = '';  // NEW: Clear product
+    document.getElementById('product').value = '';
     document.getElementById('assignedTo').value = '';
     document.getElementById('priority').value = 'medium';
     document.getElementById('dealValue').value = '';
+    document.getElementById('probabilityOfCompletion').value = '0';  // 🆕 NEW: Clear probability (default to 0%)
     document.getElementById('comments').value = '';
 }
 
@@ -1203,10 +1232,11 @@ function populateForm(lead) {
     document.getElementById('email').value = lead.email || '';
     document.getElementById('followupDate').value = lead.follow_up_date || '';
     document.getElementById('division').value = lead.division || 'tech';
-    document.getElementById('product').value = lead.product || '';  // NEW: Populate product
+    document.getElementById('product').value = lead.product || '';
     document.getElementById('assignedTo').value = lead.assigned_to || '';
     document.getElementById('priority').value = lead.priority || 'medium';
     document.getElementById('dealValue').value = lead.deal_value || '';
+    document.getElementById('probabilityOfCompletion').value = lead.probability_of_completion !== undefined ? lead.probability_of_completion : '0';  // 🆕 NEW: Populate probability
     document.getElementById('comments').value = lead.comments || '';
 }
 
