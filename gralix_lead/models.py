@@ -63,6 +63,25 @@ class Personnel(AbstractUser):
         else:
             return Lead.objects.filter(assigned_to=self)
 
+
+class Product(models.Model):
+    """
+    Product model - not tied to any specific division
+    Admin can add products, users select from dropdown
+    """
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
+
 class Lead(models.Model):
     STATUS_CHOICES = [
         ('new', 'New'),
@@ -100,6 +119,7 @@ class Lead(models.Model):
     deal_value = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     last_contact = models.DateField(null=True, blank=True)
     assigned_to = models.ForeignKey(Personnel, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_leads')
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='leads')
     progress = models.IntegerField(default=5)
     created_by = models.ForeignKey(Personnel, on_delete=models.SET_NULL, null=True, related_name='created_leads')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -124,6 +144,7 @@ class Lead(models.Model):
         else:
             return self.assigned_to == user
 
+
 class Communication(models.Model):
     COMMUNICATION_TYPES = [
         ('call', 'Phone Call'),
@@ -146,6 +167,7 @@ class Communication(models.Model):
     
     def __str__(self):
         return f"{self.lead.company} - {self.get_communication_type_display()}"
+
 
 class Assignment(models.Model):
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='assignments')

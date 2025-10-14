@@ -306,61 +306,197 @@ body::before {
 }
 
 /* ============================================
-   TABLE STYLING - COMPLETE DARK MODE
+   TABLE STYLING - ENHANCED WITH HORIZONTAL SCROLL
    ============================================ */
 
-.table {
-    color: var(--text-primary);
-    margin-bottom: 0;
+/* Table Container - Horizontal Scroll */
+.table-responsive-horizontal {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+    padding: 0;
 }
 
-/* Table Header */
-.table-dark {
+/* Custom Scrollbar for Table */
+.table-responsive-horizontal::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive-horizontal::-webkit-scrollbar-track {
+    background: var(--dark-surface-elevated);
+}
+
+.table-responsive-horizontal::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-orange) 100%);
+    border-radius: 4px;
+}
+
+.table-responsive-horizontal::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--brand-blue-light) 0%, var(--brand-orange-light) 100%);
+}
+
+/* Base Table Styles */
+.table,
+.leads-table {
+    width: 100%;
+    min-width: 1500px;
+    /* Increased for product column */
+    margin-bottom: 0;
+    color: var(--text-primary);
+    background-color: var(--dark-surface);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Table Headers */
+.table-dark,
+.leads-table thead {
     background: var(--dark-surface-elevated);
     color: var(--text-primary);
     border-color: var(--dark-border);
 }
 
-.table-dark th {
+.table-dark th,
+.leads-table thead th {
     background: linear-gradient(135deg, var(--dark-surface-elevated) 0%, #2d3347 100%);
     border-color: var(--dark-border);
     color: var(--text-primary);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.875rem;
-    letter-spacing: 0.05em;
-    padding: 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 1rem 0.75rem;
     border-bottom: 2px solid var(--brand-blue);
+    border-right: 1px solid var(--dark-border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    vertical-align: middle;
+}
+
+.leads-table thead th:last-child {
+    border-right: none;
+}
+
+/* Icon + Text Layout in Headers */
+.leads-table thead th i {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+    color: var(--brand-blue);
+}
+
+.leads-table thead th span {
+    display: block;
+    font-size: 0.7rem;
+}
+
+/* Column Width Definitions - INCLUDING PRODUCT */
+.leads-table .col-checkbox {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    text-align: center;
+}
+
+.leads-table .col-company {
+    width: 220px;
+    min-width: 220px;
+}
+
+.leads-table .col-contact {
+    width: 180px;
+    min-width: 180px;
+}
+
+.leads-table .col-assigned {
+    width: 160px;
+    min-width: 160px;
+}
+
+.leads-table .col-division {
+    width: 130px;
+    min-width: 130px;
+    text-align: center;
+}
+
+.leads-table .col-product {
+    width: 150px;
+    min-width: 150px;
+    text-align: center;
+}
+
+.leads-table .col-status {
+    width: 160px;
+    min-width: 160px;
+}
+
+.leads-table .col-priority {
+    width: 110px;
+    min-width: 110px;
+    text-align: center;
+}
+
+.leads-table .col-deal {
+    width: 130px;
+    min-width: 130px;
+    text-align: right;
+}
+
+.leads-table .col-followup {
+    width: 140px;
+    min-width: 140px;
+}
+
+.leads-table .col-actions {
+    width: 160px;
+    min-width: 160px;
+    text-align: center;
 }
 
 /* Table Body Rows */
-.table tbody {
+.table tbody,
+.leads-table tbody {
     background: var(--dark-surface);
 }
 
-.table tbody tr {
+.table tbody tr,
+.leads-table tbody tr {
     background: var(--dark-surface);
     border-bottom: 1px solid var(--dark-border);
     transition: all 0.2s ease;
 }
 
-.table tbody td {
+.table tbody td,
+.leads-table tbody td {
     color: var(--text-primary);
-    padding: 1rem;
+    padding: 1rem 0.75rem;
     vertical-align: middle;
     border-color: var(--dark-border);
+    background: var(--dark-surface);
+    border-bottom: 1px solid var(--dark-border);
+    border-right: 1px solid rgba(42, 47, 62, 0.5);
+}
+
+.leads-table tbody td:last-child {
+    border-right: none;
 }
 
 /* Table Hover Effect */
-.table-hover tbody tr:hover {
+.table-hover tbody tr:hover,
+.leads-table tbody tr:hover {
     background: var(--dark-surface-hover);
     box-shadow: inset 0 0 0 1px var(--brand-blue);
     transform: scale(1.001);
     cursor: pointer;
 }
 
-.table-hover tbody tr:hover td {
+.table-hover tbody tr:hover td,
+.leads-table tbody tr:hover td {
     color: var(--text-primary);
+    background: var(--dark-surface-hover);
 }
 
 /* Striped Tables */
@@ -385,8 +521,17 @@ body::before {
 }
 
 /* Small text in tables */
-.table small {
+.table small,
+.leads-table small {
     color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* Strong text in tables */
+.table strong,
+.leads-table strong {
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
 /* Links in tables */
@@ -398,6 +543,55 @@ body::before {
 .table a:hover {
     color: var(--brand-orange);
     text-decoration: none;
+}
+
+/* Company Link Styling */
+.lead-company-link {
+    text-decoration: none;
+    color: var(--brand-blue);
+    font-weight: 600;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.lead-company-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--brand-orange);
+    transition: width 0.3s ease;
+}
+
+.lead-company-link:hover {
+    color: var(--brand-orange);
+    text-decoration: none;
+    text-shadow: 0 0 10px var(--brand-orange-glow);
+}
+
+.lead-company-link:hover::after {
+    width: 100%;
+}
+
+/* Checkbox Styling in Tables */
+.leads-table input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--brand-blue);
+}
+
+/* Button Groups in Actions Column */
+.leads-table .btn-group {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.leads-table .btn-group .btn {
+    padding: 0.375rem 0.5rem;
 }
 
 /* ============================================
@@ -625,6 +819,11 @@ body::before {
     background: var(--danger) !important;
     color: #ffffff;
     box-shadow: 0 0 10px var(--danger-glow);
+}
+
+.badge.bg-secondary {
+    background: #6b7280 !important;
+    color: #ffffff;
 }
 
 /* Division Badges */
@@ -1050,39 +1249,6 @@ body::before {
 }
 
 /* ============================================
-   LINKS
-   ============================================ */
-
-.lead-company-link {
-    text-decoration: none;
-    color: var(--brand-blue);
-    font-weight: 600;
-    transition: all 0.2s ease;
-    position: relative;
-}
-
-.lead-company-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--brand-orange);
-    transition: width 0.3s ease;
-}
-
-.lead-company-link:hover {
-    color: var(--brand-orange);
-    text-decoration: none;
-    text-shadow: 0 0 10px var(--brand-orange-glow);
-}
-
-.lead-company-link:hover::after {
-    width: 100%;
-}
-
-/* ============================================
    LOADING STATES
    ============================================ */
 
@@ -1219,6 +1385,12 @@ body::before {
 /* ============================================
    RESPONSIVE ADJUSTMENTS
    ============================================ */
+
+@media (max-width: 1200px) {
+    .leads-table {
+        min-width: 1400px;
+    }
+}
 
 @media (max-width: 768px) {
     .quick-view-card {

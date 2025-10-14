@@ -15,9 +15,9 @@ from django.utils import timezone
 from datetime import datetime
 import json
 
-from .models import Lead, Personnel, Communication, Assignment
+from .models import Lead, Personnel, Communication, Assignment, Product
 from .serializers import (LeadSerializer, LeadCreateSerializer, PersonnelSerializer, 
-                         CommunicationSerializer, PersonnelLoginSerializer)
+                         CommunicationSerializer, PersonnelLoginSerializer, ProductSerializer)
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -433,3 +433,12 @@ def get_user_profile(request):
             'can_view_all_leads': request.user.can_view_all_leads(),
         }
     })
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_products(request):
+    """
+    Get all active products for dropdown selection
+    """
+    products = Product.objects.filter(is_active=True)
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)

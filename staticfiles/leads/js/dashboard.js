@@ -1,5 +1,6 @@
 var leads = [];
 var personnel = [];
+var products = [];  // NEW: Store products
 var filteredLeads = [];
 var editingLeadId = null;
 var currentCommunicationLeadId = null;
@@ -37,7 +38,6 @@ function formatCurrency(amount) {
         return 'K 0';
     }
 
-    // Format with comma separators for Zambian Kwacha
     const formattedNumber = numAmount.toLocaleString('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
@@ -78,6 +78,10 @@ async function loadInitialData() {
         personnel = await apiCall('/api/personnel/');
         populatePersonnelDropdowns();
 
+        // Load products - NEW
+        products = await apiCall('/api/products/');
+        populateProductDropdown();
+
         // Load leads
         leads = await apiCall('/api/leads/');
 
@@ -106,7 +110,6 @@ function showLoading(show) {
 }
 
 function showAlert(message, type = 'success') {
-    // Create alert element
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
     alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
@@ -117,7 +120,6 @@ function showAlert(message, type = 'success') {
 
     document.body.appendChild(alertDiv);
 
-    // Auto remove after 5 seconds
     setTimeout(() => {
         if (alertDiv.parentNode) {
             alertDiv.remove();
@@ -132,7 +134,6 @@ function setupEventListeners() {
     document.getElementById('priorityFilter').addEventListener('change', applyFilters);
     document.getElementById('personnelFilter').addEventListener('change', applyFilters);
 
-    // Assignment strategy change
     document.getElementById('assignmentStrategy').addEventListener('change', function () {
         var strategy = this.value;
         var manualDiv = document.getElementById('manualAssignmentDiv');
@@ -144,11 +145,9 @@ function populatePersonnelDropdowns() {
     var dropdowns = ['assignedTo', 'reassignTo', 'bulkAssignPerson'];
     var personnelFilter = document.getElementById('personnelFilter');
 
-    // Clear existing options (except first one)
     const existingOptions = personnelFilter.querySelectorAll('option:not(:first-child):not([value="unassigned"])');
     existingOptions.forEach(option => option.remove());
 
-    // Populate filter dropdown
     personnel.forEach(function (person) {
         var option = document.createElement('option');
         option.value = person.id;
@@ -156,7 +155,6 @@ function populatePersonnelDropdowns() {
         personnelFilter.appendChild(option);
     });
 
-    // Populate other dropdowns
     dropdowns.forEach(function (dropdownId) {
         var dropdown = document.getElementById(dropdownId);
         if (dropdown) {
@@ -169,6 +167,20 @@ function populatePersonnelDropdowns() {
             });
         }
     });
+}
+
+// NEW: Populate product dropdown
+function populateProductDropdown() {
+    var dropdown = document.getElementById('product');
+    if (dropdown) {
+        dropdown.innerHTML = '<option value="">Select Product (Optional)</option>';
+        products.forEach(function (product) {
+            var option = document.createElement('option');
+            option.value = product.id;
+            option.textContent = product.name;
+            dropdown.appendChild(option);
+        });
+    }
 }
 
 function renderAll() {
@@ -240,7 +252,6 @@ function renderAnalytics() {
     var avgDeal = analytics.avg_deal || 0;
     var conversionRate = analytics.conversion_rate || 0;
 
-    // Revenue Overview - Using ZMW formatting
     var revenueHtml = '';
     revenueHtml += '<div class="row g-3">';
     revenueHtml += '<div class="col-6">';
@@ -267,7 +278,6 @@ function renderAnalytics() {
 
     document.getElementById('revenueOverview').innerHTML = revenueHtml;
 
-    // Division Performance - Using ZMW formatting
     var divisionHtml = '';
     divisionHtml += '<div class="row g-3">';
 
@@ -296,7 +306,6 @@ function renderAnalytics() {
 
     document.getElementById('divisionPerformance').innerHTML = divisionHtml;
 
-    // Team Performance - Using ZMW formatting
     var teamHtml = '';
     teamHtml += '<div class="row g-2">';
 
@@ -320,7 +329,6 @@ function renderAnalytics() {
 
     document.getElementById('teamPerformance').innerHTML = teamHtml;
 
-    // Deal Stage Pipeline - Using ZMW formatting
     var stageHtml = '';
     var statusCounts = analytics.status_counts || {};
     var stageStats = [
@@ -392,13 +400,13 @@ function renderLeadsTable() {
         html += '<td>';
         html += '<div class="d-flex align-items-start">';
         html += '<div class="flex-grow-1">';
-        html += '<strong class="lead-company-link" onclick="showLeadDetail(' + lead.id + ')" style="cursor: pointer; color: #0d6efd;">' + lead.company + '</strong>';
+        html += '<strong class="lead-company-link" onclick="showLeadDetail(' + lead.id + ')" style="cursor: pointer;">' + lead.company + '</strong>';
         if (lead.comments) {
-            html += '<br><small class="text-muted">' + lead.comments + '</small>';
+            html += '<br><small class="text-muted">' + (lead.comments.length > 50 ? lead.comments.substring(0, 50) + '...' : lead.comments) + '</small>';
         }
         if (hasRecentComm) {
             var lastComm = lead.communications[0];
-            html += '<div class="mt-1"><span class="badge bg-info text-dark"><i class="bi bi-clock me-1"></i>' + lastComm.date + '</span></div>';
+            html += '<div class="mt-1"><span class="badge bg-info"><i class="bi bi-clock me-1"></i>' + lastComm.date + '</span></div>';
         }
         html += '</div></div></td>';
 
@@ -432,6 +440,15 @@ function renderLeadsTable() {
         // Division column
         html += '<td><span class="badge division-' + lead.division + '">' + getDivisionLabel(lead.division) + '</span></td>';
 
+        // Product column - NEW
+        html += '<td>';
+        if (lead.product_name) {
+            html += '<span class="badge bg-secondary"><i class="bi bi-box-seam me-1"></i>' + lead.product_name + '</span>';
+        } else {
+            html += '<span class="text-muted">-</span>';
+        }
+        html += '</td>';
+
         // Status & Progress column
         html += '<td>';
         html += getStatusBadge(lead.status);
@@ -446,7 +463,7 @@ function renderLeadsTable() {
         // Priority column
         html += '<td><span class="priority-' + lead.priority + '">' + lead.priority.toUpperCase() + '</span></td>';
 
-        // Deal Value column - Using ZMW formatting
+        // Deal Value column
         html += '<td><strong>' + formatCurrency(lead.deal_value) + '</strong></td>';
 
         // Next Follow-up column
@@ -478,9 +495,9 @@ function renderLeadsTable() {
         html += '<button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" title="More Actions">';
         html += '<i class="bi bi-three-dots"></i></button>';
         html += '<ul class="dropdown-menu">';
-        html += '<li><a class="dropdown-item" href="#" onclick="showReassignModal(' + lead.id + ')"><i class="bi bi-person-gear me-2"></i>Reassign</a></li>';
+        html += '<li><a class="dropdown-item" href="#" onclick="showReassignModal(' + lead.id + '); return false;"><i class="bi bi-person-gear me-2"></i>Reassign</a></li>';
         html += '<li><hr class="dropdown-divider"></li>';
-        html += '<li><a class="dropdown-item text-danger" href="#" onclick="deleteLead(' + lead.id + ')"><i class="bi bi-trash me-2"></i>Delete</a></li>';
+        html += '<li><a class="dropdown-item text-danger" href="#" onclick="deleteLead(' + lead.id + '); return false;"><i class="bi bi-trash me-2"></i>Delete</a></li>';
         html += '</ul></div>';
         html += '</div></td>';
 
@@ -513,6 +530,12 @@ async function showLeadDetail(leadId) {
     html += '</div>';
     html += '<div class="col-md-6">';
     html += '<p class="mb-1"><strong>Division:</strong> <span class="badge division-' + lead.division + '">' + getDivisionLabel(lead.division) + '</span></p>';
+
+    // NEW: Show product in detail view
+    if (lead.product_name) {
+        html += '<p class="mb-1"><strong>Product:</strong> <span class="badge bg-secondary">' + lead.product_name + '</span></p>';
+    }
+
     html += '<p class="mb-1"><strong>Priority:</strong> <span class="priority-' + lead.priority + '">' + lead.priority.toUpperCase() + '</span></p>';
     html += '</div>';
     html += '</div>';
@@ -521,7 +544,6 @@ async function showLeadDetail(leadId) {
     html += '<h3 class="text-success mb-2">' + formatCurrency(lead.deal_value) + '</h3>';
     html += '<div class="mb-2">' + getStatusBadge(lead.status) + '</div>';
 
-    // Progress bar
     html += '<div class="stage-progress mb-2">';
     html += '<div class="stage-progress-fill" style="width: ' + (lead.progress || 0) + '%"></div>';
     html += '</div>';
@@ -530,7 +552,7 @@ async function showLeadDetail(leadId) {
     html += '</div>';
     html += '</div>';
 
-    // Assignment Info
+    // Rest of the detail modal content...
     html += '<div class="row mb-4">';
     html += '<div class="col-md-6">';
     html += '<div class="card">';
@@ -545,7 +567,6 @@ async function showLeadDetail(leadId) {
         html += '</div>';
         html += '</div>';
 
-        // Assignment history
         if (lead.assignments && lead.assignments.length > 0) {
             html += '<small class="text-muted">Assignment History:</small>';
             html += '<div class="mt-1">';
@@ -575,7 +596,6 @@ async function showLeadDetail(leadId) {
     html += '</div>';
     html += '</div>';
 
-    // Important Dates
     html += '<div class="col-md-6">';
     html += '<div class="card">';
     html += '<div class="card-header"><h6 class="mb-0"><i class="bi bi-calendar me-2"></i>Important Dates</h6></div>';
@@ -605,7 +625,6 @@ async function showLeadDetail(leadId) {
     html += '</div>';
     html += '</div>';
 
-    // Comments
     if (lead.comments) {
         html += '<div class="card mb-4">';
         html += '<div class="card-header"><h6 class="mb-0"><i class="bi bi-chat-text me-2"></i>Notes</h6></div>';
@@ -615,7 +634,6 @@ async function showLeadDetail(leadId) {
         html += '</div>';
     }
 
-    // Communication History
     html += '<div class="card">';
     html += '<div class="card-header d-flex justify-content-between align-items-center">';
     html += '<h6 class="mb-0"><i class="bi bi-chat-dots me-2"></i>Communication History</h6>';
@@ -656,23 +674,6 @@ async function showLeadDetail(leadId) {
     new bootstrap.Modal(document.getElementById('leadDetailModal')).show();
 }
 
-function navigateLead(direction) {
-    var currentIndex = -1;
-    for (var i = 0; i < filteredLeads.length; i++) {
-        if (filteredLeads[i].id === currentDetailLeadId) {
-            currentIndex = i;
-            break;
-        }
-    }
-
-    if (currentIndex === -1) return;
-
-    var newIndex = currentIndex + direction;
-    if (newIndex >= 0 && newIndex < filteredLeads.length) {
-        showLeadDetail(filteredLeads[newIndex].id);
-    }
-}
-
 function editLeadFromDetail() {
     bootstrap.Modal.getInstance(document.getElementById('leadDetailModal')).hide();
     editLead(currentDetailLeadId);
@@ -699,7 +700,6 @@ function applyFilters() {
         var lead = leads[i];
         var include = true;
 
-        // Search filter
         if (searchTerm) {
             var searchableText = (lead.company + ' ' + (lead.contact_name || '') + ' ' + (lead.comments || '') + ' ' + (lead.assigned_to_name || '')).toLowerCase();
             if (searchableText.indexOf(searchTerm) === -1) {
@@ -707,22 +707,15 @@ function applyFilters() {
             }
         }
 
-        // Status filter
         if (statusFilter !== 'all' && lead.status !== statusFilter) include = false;
-
-        // Division filter
         if (divisionFilter !== 'all' && lead.division !== divisionFilter) include = false;
-
-        // Priority filter  
         if (priorityFilter !== 'all' && lead.priority !== priorityFilter) include = false;
 
-        // Personnel filter
         if (personnelFilter !== 'all') {
             if (personnelFilter === 'unassigned' && lead.assigned_to) include = false;
             if (personnelFilter !== 'unassigned' && lead.assigned_to != personnelFilter) include = false;
         }
 
-        // View-based filtering
         if (currentView === 'hot' && lead.status !== 'hot') include = false;
         if (currentView === 'qualified' && lead.status !== 'qualified') include = false;
         if (currentView === 'high-priority' && lead.priority !== 'high') include = false;
@@ -798,7 +791,6 @@ function updateSelectAllState() {
     }
 }
 
-// Lead management functions
 function showAddForm() {
     editingLeadId = null;
     document.getElementById('modalTitle').textContent = 'Add New Lead';
@@ -831,6 +823,9 @@ async function saveLead() {
         return;
     }
 
+    // NEW: Get product value
+    var productValue = document.getElementById('product').value;
+
     var formData = {
         company: companyName,
         contact_name: document.getElementById('contactName').value.trim(),
@@ -841,7 +836,8 @@ async function saveLead() {
         priority: document.getElementById('priority').value,
         deal_value: parseFloat(document.getElementById('dealValue').value) || 0,
         comments: document.getElementById('comments').value.trim(),
-        assigned_to: parseInt(assignedTo)
+        assigned_to: parseInt(assignedTo),
+        product: productValue ? parseInt(productValue) : null  // NEW: Include product
     };
 
     try {
@@ -1098,7 +1094,6 @@ async function processBulkAssignment() {
     }
 }
 
-// Bulk operations
 async function bulkReassign() {
     if (selectedLeads.length === 0) {
         alert('Please select leads to reassign');
@@ -1199,7 +1194,6 @@ async function bulkDelete() {
     }
 }
 
-// Form utility functions
 function clearForm() {
     document.getElementById('companyName').value = '';
     document.getElementById('contactName').value = '';
@@ -1211,6 +1205,7 @@ function clearForm() {
     document.getElementById('priority').value = 'medium';
     document.getElementById('dealValue').value = '';
     document.getElementById('comments').value = '';
+    document.getElementById('product').value = '';  // NEW: Clear product
 }
 
 function populateForm(lead) {
@@ -1224,9 +1219,9 @@ function populateForm(lead) {
     document.getElementById('priority').value = lead.priority || 'medium';
     document.getElementById('dealValue').value = lead.deal_value || '';
     document.getElementById('comments').value = lead.comments || '';
+    document.getElementById('product').value = lead.product || '';  // NEW: Set product
 }
 
-// Utility functions
 function findLeadById(id) {
     for (var i = 0; i < leads.length; i++) {
         if (leads[i].id === id) return leads[i];
