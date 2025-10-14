@@ -327,10 +327,43 @@ body::before {
     color: var(--text-primary);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.875rem;
+    font-size: 0.65rem;
     letter-spacing: 0.05em;
-    padding: 1rem;
+    padding: 0.75rem 0.5rem;
     border-bottom: 2px solid var(--brand-blue);
+}
+
+/* Smooth Horizontal Scroll for Table Container */
+.table-responsive-horizontal {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar for Table Container */
+.table-responsive-horizontal::-webkit-scrollbar {
+    height: 10px;
+}
+
+.table-responsive-horizontal::-webkit-scrollbar-track {
+    background: var(--dark-surface-elevated);
+    border-radius: 5px;
+}
+
+.table-responsive-horizontal::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-orange) 100%);
+    border-radius: 5px;
+    border: 2px solid var(--dark-surface-elevated);
+}
+
+.table-responsive-horizontal::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--brand-blue-light) 0%, var(--brand-orange-light) 100%);
+}
+
+/* Table minimum width for horizontal scroll */
+.leads-table {
+    min-width: 1500px;
 }
 
 /* Table Body Rows */

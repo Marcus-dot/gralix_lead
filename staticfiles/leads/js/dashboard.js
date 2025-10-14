@@ -391,26 +391,23 @@ function renderLeadsTable() {
 
         html += '<tr>';
 
-        // Checkbox column
         html += '<td>';
         html += '<input type="checkbox" class="lead-checkbox" value="' + lead.id + '" onchange="updateSelectedLeads()">';
         html += '</td>';
 
-        // Company column
         html += '<td>';
         html += '<div class="d-flex align-items-start">';
         html += '<div class="flex-grow-1">';
-        html += '<strong class="lead-company-link" onclick="showLeadDetail(' + lead.id + ')" style="cursor: pointer;">' + lead.company + '</strong>';
+        html += '<strong class="lead-company-link" onclick="showLeadDetail(' + lead.id + ')" style="cursor: pointer; color: #0d6efd;">' + lead.company + '</strong>';
         if (lead.comments) {
-            html += '<br><small class="text-muted">' + (lead.comments.length > 50 ? lead.comments.substring(0, 50) + '...' : lead.comments) + '</small>';
+            html += '<br><small class="text-muted">' + lead.comments + '</small>';
         }
         if (hasRecentComm) {
             var lastComm = lead.communications[0];
-            html += '<div class="mt-1"><span class="badge bg-info"><i class="bi bi-clock me-1"></i>' + lastComm.date + '</span></div>';
+            html += '<div class="mt-1"><span class="badge bg-info text-dark"><i class="bi bi-clock me-1"></i>' + lastComm.date + '</span></div>';
         }
         html += '</div></div></td>';
 
-        // Contact column  
         html += '<td>';
         html += '<div>' + (lead.contact_name || '-') + '</div>';
         if (lead.position) {
@@ -422,7 +419,6 @@ function renderLeadsTable() {
         }
         html += '</td>';
 
-        // Assigned To column
         html += '<td>';
         if (lead.assigned_to_name) {
             html += '<div class="d-flex align-items-center">';
@@ -437,19 +433,17 @@ function renderLeadsTable() {
         }
         html += '</td>';
 
-        // Division column
         html += '<td><span class="badge division-' + lead.division + '">' + getDivisionLabel(lead.division) + '</span></td>';
 
         // Product column - NEW
-        html += '<td>';
+        html += '<td class="text-center">';
         if (lead.product_name) {
-            html += '<span class="badge bg-secondary"><i class="bi bi-box-seam me-1"></i>' + lead.product_name + '</span>';
+            html += '<span class="badge bg-secondary">' + lead.product_name + '</span>';
         } else {
             html += '<span class="text-muted">-</span>';
         }
         html += '</td>';
 
-        // Status & Progress column
         html += '<td>';
         html += getStatusBadge(lead.status);
         html += '<div class="mt-1">';
@@ -460,13 +454,10 @@ function renderLeadsTable() {
         html += '</div>';
         html += '</td>';
 
-        // Priority column
         html += '<td><span class="priority-' + lead.priority + '">' + lead.priority.toUpperCase() + '</span></td>';
 
-        // Deal Value column
         html += '<td><strong>' + formatCurrency(lead.deal_value) + '</strong></td>';
 
-        // Next Follow-up column
         html += '<td>';
         if (lead.follow_up_date) {
             var followupDate = new Date(lead.follow_up_date);
@@ -482,7 +473,6 @@ function renderLeadsTable() {
         }
         html += '</td>';
 
-        // Actions column
         html += '<td>';
         html += '<div class="btn-group btn-group-sm">';
         html += '<button class="btn btn-outline-info" onclick="showLeadDetail(' + lead.id + ')" title="View Details">';
@@ -495,9 +485,9 @@ function renderLeadsTable() {
         html += '<button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" title="More Actions">';
         html += '<i class="bi bi-three-dots"></i></button>';
         html += '<ul class="dropdown-menu">';
-        html += '<li><a class="dropdown-item" href="#" onclick="showReassignModal(' + lead.id + '); return false;"><i class="bi bi-person-gear me-2"></i>Reassign</a></li>';
+        html += '<li><a class="dropdown-item" href="#" onclick="showReassignModal(' + lead.id + ')"><i class="bi bi-person-gear me-2"></i>Reassign</a></li>';
         html += '<li><hr class="dropdown-divider"></li>';
-        html += '<li><a class="dropdown-item text-danger" href="#" onclick="deleteLead(' + lead.id + '); return false;"><i class="bi bi-trash me-2"></i>Delete</a></li>';
+        html += '<li><a class="dropdown-item text-danger" href="#" onclick="deleteLead(' + lead.id + ')"><i class="bi bi-trash me-2"></i>Delete</a></li>';
         html += '</ul></div>';
         html += '</div></td>';
 
@@ -506,7 +496,7 @@ function renderLeadsTable() {
 
     tbody.innerHTML = html;
 }
-
+// here.....
 async function showLeadDetail(leadId) {
     currentDetailLeadId = leadId;
     var lead = findLeadById(leadId);
@@ -530,12 +520,6 @@ async function showLeadDetail(leadId) {
     html += '</div>';
     html += '<div class="col-md-6">';
     html += '<p class="mb-1"><strong>Division:</strong> <span class="badge division-' + lead.division + '">' + getDivisionLabel(lead.division) + '</span></p>';
-
-    // NEW: Show product in detail view
-    if (lead.product_name) {
-        html += '<p class="mb-1"><strong>Product:</strong> <span class="badge bg-secondary">' + lead.product_name + '</span></p>';
-    }
-
     html += '<p class="mb-1"><strong>Priority:</strong> <span class="priority-' + lead.priority + '">' + lead.priority.toUpperCase() + '</span></p>';
     html += '</div>';
     html += '</div>';
@@ -552,7 +536,6 @@ async function showLeadDetail(leadId) {
     html += '</div>';
     html += '</div>';
 
-    // Rest of the detail modal content...
     html += '<div class="row mb-4">';
     html += '<div class="col-md-6">';
     html += '<div class="card">';
@@ -672,6 +655,23 @@ async function showLeadDetail(leadId) {
     document.getElementById('leadDetailContent').innerHTML = html;
     document.getElementById('leadDetailTitle').textContent = 'Lead Details - ' + lead.company;
     new bootstrap.Modal(document.getElementById('leadDetailModal')).show();
+}
+
+function navigateLead(direction) {
+    var currentIndex = -1;
+    for (var i = 0; i < filteredLeads.length; i++) {
+        if (filteredLeads[i].id === currentDetailLeadId) {
+            currentIndex = i;
+            break;
+        }
+    }
+
+    if (currentIndex === -1) return;
+
+    var newIndex = currentIndex + direction;
+    if (newIndex >= 0 && newIndex < filteredLeads.length) {
+        showLeadDetail(filteredLeads[newIndex].id);
+    }
 }
 
 function editLeadFromDetail() {
@@ -823,7 +823,6 @@ async function saveLead() {
         return;
     }
 
-    // NEW: Get product value
     var productValue = document.getElementById('product').value;
 
     var formData = {
@@ -833,11 +832,11 @@ async function saveLead() {
         email: document.getElementById('email').value.trim(),
         follow_up_date: document.getElementById('followupDate').value || null,
         division: document.getElementById('division').value,
+        product: productValue ? parseInt(productValue) : null,  // NEW: Include product
         priority: document.getElementById('priority').value,
         deal_value: parseFloat(document.getElementById('dealValue').value) || 0,
         comments: document.getElementById('comments').value.trim(),
-        assigned_to: parseInt(assignedTo),
-        product: productValue ? parseInt(productValue) : null  // NEW: Include product
+        assigned_to: parseInt(assignedTo)
     };
 
     try {
@@ -857,9 +856,7 @@ async function saveLead() {
         }
 
         bootstrap.Modal.getInstance(document.getElementById('leadModal')).hide();
-
         await loadInitialData();
-
         showLoading(false);
     } catch (error) {
         console.error('Error saving lead:', error);
@@ -935,7 +932,6 @@ async function logCommunication() {
         }
 
         bootstrap.Modal.getInstance(document.getElementById('communicationModal')).hide();
-
         await loadInitialData();
 
         if (currentDetailLeadId === currentCommunicationLeadId) {
@@ -995,7 +991,6 @@ async function processReassignment() {
         }
 
         bootstrap.Modal.getInstance(document.getElementById('reassignModal')).hide();
-
         await loadInitialData();
 
         if (currentDetailLeadId === currentCommunicationLeadId) {
@@ -1041,9 +1036,7 @@ async function quickAssign(leadId) {
             }
 
             assignee.workload++;
-
             await loadInitialData();
-
             showAlert('Lead assigned successfully');
             showLoading(false);
         } catch (error) {
@@ -1082,9 +1075,7 @@ async function processBulkAssignment() {
         var response = await apiCall('/api/bulk-assign/', 'POST', data);
 
         bootstrap.Modal.getInstance(document.getElementById('bulkAssignModal')).hide();
-
         await loadInitialData();
-
         showAlert(response.message);
         showLoading(false);
     } catch (error) {
@@ -1118,7 +1109,6 @@ async function bulkReassign() {
 
                 selectedLeads = [];
                 await loadInitialData();
-
                 showAlert('Successfully reassigned leads!');
                 showLoading(false);
             } catch (error) {
@@ -1156,7 +1146,6 @@ async function bulkUpdateStatus() {
 
             selectedLeads = [];
             await loadInitialData();
-
             showAlert('Successfully updated status for selected leads!');
             showLoading(false);
         } catch (error) {
@@ -1183,7 +1172,6 @@ async function bulkDelete() {
 
             selectedLeads = [];
             await loadInitialData();
-
             showAlert('Successfully deleted selected leads!');
             showLoading(false);
         } catch (error) {
@@ -1201,11 +1189,11 @@ function clearForm() {
     document.getElementById('email').value = '';
     document.getElementById('followupDate').value = '';
     document.getElementById('division').value = 'tech';
+    document.getElementById('product').value = '';  // NEW: Clear product
     document.getElementById('assignedTo').value = '';
     document.getElementById('priority').value = 'medium';
     document.getElementById('dealValue').value = '';
     document.getElementById('comments').value = '';
-    document.getElementById('product').value = '';  // NEW: Clear product
 }
 
 function populateForm(lead) {
@@ -1215,11 +1203,11 @@ function populateForm(lead) {
     document.getElementById('email').value = lead.email || '';
     document.getElementById('followupDate').value = lead.follow_up_date || '';
     document.getElementById('division').value = lead.division || 'tech';
+    document.getElementById('product').value = lead.product || '';  // NEW: Populate product
     document.getElementById('assignedTo').value = lead.assigned_to || '';
     document.getElementById('priority').value = lead.priority || 'medium';
     document.getElementById('dealValue').value = lead.deal_value || '';
     document.getElementById('comments').value = lead.comments || '';
-    document.getElementById('product').value = lead.product || '';  // NEW: Set product
 }
 
 function findLeadById(id) {
