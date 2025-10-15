@@ -41,9 +41,11 @@ class PersonnelLoginSerializer(serializers.Serializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    division_display = serializers.CharField(source='get_division_display', read_only=True)
+    
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'is_active']
+        fields = ['id', 'name', 'division', 'division_display', 'description', 'is_active']
 
 
 class CommunicationSerializer(serializers.ModelSerializer):

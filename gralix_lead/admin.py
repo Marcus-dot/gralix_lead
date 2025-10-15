@@ -24,14 +24,14 @@ class PersonnelAdmin(UserAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'description', 'is_active', 'created_at', 'updated_at']
-    list_filter = ['is_active', 'created_at']
+    list_display = ['name', 'division', 'is_active', 'created_at', 'updated_at']
+    list_filter = ['division', 'is_active', 'created_at']
     search_fields = ['name', 'description']
-    ordering = ['name']
+    ordering = ['division', 'name']
     
     fieldsets = (
         (None, {
-            'fields': ('name', 'description', 'is_active')
+            'fields': ('name', 'division', 'description', 'is_active')
         }),
     )
 

@@ -437,8 +437,19 @@ def get_user_profile(request):
 @permission_classes([IsAuthenticated])
 def get_products(request):
     """
-    Get all active products for dropdown selection
+    Get active products filtered by user's division
+    Users only see products from their division
+    Admins can see all products
     """
-    products = Product.objects.filter(is_active=True)
+    if request.user.can_view_all_leads():
+        # Admins see all products from all divisions
+        products = Product.objects.filter(is_active=True)
+    else:
+        # Regular users only see products from their division
+        products = Product.objects.filter(
+            is_active=True, 
+            division=request.user.division
+        )
+    
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)

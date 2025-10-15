@@ -66,20 +66,29 @@ class Personnel(AbstractUser):
 
 class Product(models.Model):
     """
-    Product model - not tied to any specific division
-    Admin can add products, users select from dropdown
+    Product model - tied to specific divisions
+    Each product belongs to one division (tech, actuarial, or capital)
+    Users only see products from their division
     """
-    name = models.CharField(max_length=100, unique=True)
+    DIVISION_CHOICES = [
+        ('tech', 'Gralix Tech'),
+        ('actuarial', 'Gralix Actuarial'),
+        ('capital', 'Gralix Capital'),
+    ]
+    
+    name = models.CharField(max_length=100)
+    division = models.CharField(max_length=20, choices=DIVISION_CHOICES)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['name']
+        ordering = ['division', 'name']
+        unique_together = [['name', 'division']]  # Same product name can exist in different divisions
     
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_division_display()})"
 
 
 class Lead(models.Model):
