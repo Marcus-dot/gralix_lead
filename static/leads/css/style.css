@@ -2397,7 +2397,6 @@ label {
     padding: 0.5rem 0 !important;
     min-width: 200px !important;
     z-index: 1060 !important;
-    animation: dropdownFadeIn 0.2s ease-out !important;
 }
 
 .dropdown-item {
@@ -2550,19 +2549,6 @@ label {
     box-shadow: 0 0 0 0.25rem rgba(232, 92, 41, 0.15) !important;
 }
 
-/* Dropdown Animation */
-@keyframes dropdownFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(5px);
-    }
-}
-
 /* Responsive Dropdown */
 @media (max-width: 768px) {
     .dropdown-menu {
@@ -2576,44 +2562,56 @@ label {
 }
 
 /* ============================================
-   TABLE SCROLL & DROPDOWN FIX - FINAL
+   TABLE SCROLL FIX - Keep Table Scroll Only
    ============================================ */
 
-/* Table scroll only (not entire page) */
+/* Proper horizontal scroll for table */
 .table-responsive,
 .table-responsive-horizontal {
     overflow-x: auto !important;
     overflow-y: visible !important;
 }
 
-/* Allow dropdown to escape table container */
-.table .dropdown {
-    position: static !important;
-}
-
-.table .btn-group {
-    position: static !important;
-}
-
-/* Dropdown menu positioning */
-.table .dropdown-menu {
-    position: fixed !important;
-    top: auto !important;
-    left: auto !important;
-    transform: translateY(5px);
-    z-index: 1060 !important;
-}
-
-/* Dropdown in last row opens upward */
-.table tbody tr:last-child .dropdown-menu {
-    bottom: 100% !important;
-    top: auto !important;
-    margin-bottom: 0.5rem !important;
-    margin-top: 0 !important;
-}
-
-/* Keep horizontal scroll for table */
+/* Keep horizontal scroll visible */
 .table-responsive::-webkit-scrollbar,
 .table-responsive-horizontal::-webkit-scrollbar {
     display: block !important;
+}
+
+/* ============================================
+   QUICK VIEW CARD - FIX WHITE TEXT IN LIGHT MODE
+   ============================================ */
+
+/* Ensure non-active cards have visible text in light mode */
+[data-theme="light"] .quick-view-card:not(.active) {
+    background: var(--dark-surface) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .quick-view-card:not(.active) .card-title {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .quick-view-card:not(.active) .card-text {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .quick-view-card:not(.active) h3,
+[data-theme="light"] .quick-view-card:not(.active) h4 {
+    color: var(--text-primary) !important;
+}
+
+/* Active card should have dark background with white text */
+[data-theme="light"] .quick-view-card.active {
+    background: linear-gradient(135deg, #222551 0%, #2d3070 100%) !important;
+    border-color: #222551 !important;
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(34, 37, 81, 0.3) !important;
+}
+
+[data-theme="light"] .quick-view-card.active .card-title,
+[data-theme="light"] .quick-view-card.active .card-text,
+[data-theme="light"] .quick-view-card.active i,
+[data-theme="light"] .quick-view-card.active h3,
+[data-theme="light"] .quick-view-card.active h4 {
+    color: #ffffff !important;
 }
