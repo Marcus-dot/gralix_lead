@@ -139,6 +139,12 @@ function setupEventListeners() {
         var manualDiv = document.getElementById('manualAssignmentDiv');
         manualDiv.style.display = strategy === 'manual' ? 'block' : 'none';
     });
+
+    // Initialize carousel with infinite loop and no auto-slide
+    const carousel = new bootstrap.Carousel(document.getElementById('quickViewCarousel'), {
+        interval: false, // Disable auto-slide
+        wrap: true       // Enable infinite looping
+    });
 }
 
 function populatePersonnelDropdowns() {
@@ -276,22 +282,22 @@ function renderQuickViewCards(data) {
     ];
 
     let html = `
-        <div id="quickViewCarousel" class="carousel slide quick-view-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+        <div id="quickViewCarousel" class="carousel slide quick-view-carousel" data-bs-interval="false" data-bs-wrap="true">
             <div class="carousel-inner">
     `;
 
-    // Group cards into slides (3 cards per slide for responsive display)
-    for (let i = 0; i < statusCards.length; i += 3) {
+    // Group cards into slides (4 cards per slide for responsive display)
+    for (let i = 0; i < statusCards.length; i += 4) {
         const isActive = i === 0 ? 'active' : '';
         html += `
             <div class="carousel-item ${isActive}">
                 <div class="row g-3 quick-view-slide">
         `;
-        // Add up to 3 cards per slide
-        for (let j = i; j < i + 3 && j < statusCards.length; j++) {
+        // Add up to 4 cards per slide
+        for (let j = i; j < i + 4 && j < statusCards.length; j++) {
             const card = statusCards[j];
             html += `
-                <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="col-lg-3 col-md-6 col-sm-12">
                     <div class="card quick-view-card h-100 shadow-sm" 
                          onclick="filterByStatus('${card.statusFilter}')" 
                          id="card-${card.id}">
@@ -310,6 +316,55 @@ function renderQuickViewCards(data) {
         `;
     }
 
+    // Add cloned items for seamless looping
+    // Clone first 4 cards to append at the end
+    const firstFourCards = statusCards.slice(0, 4);
+    html += `
+        <div class="carousel-item">
+            <div class="row g-3 quick-view-slide">
+    `;
+    firstFourCards.forEach(card => {
+        html += `
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="card quick-view-card h-100 shadow-sm" 
+                     onclick="filterByStatus('${card.statusFilter}')" 
+                     id="card-${card.id}-clone">
+                    <div class="card-body text-center">
+                        <i class="bi ${card.icon} fs-2 text-${card.colorClass} mb-3 d-block"></i>
+                        <h3 class="mb-2 text-${card.colorClass}">${card.count}</h3>
+                        <p class="card-text text-muted mb-0">${card.title}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += `
+            </div>
+        </div>
+    `;
+
+    // Clone last 4 cards to prepend at the start
+    const lastFourCards = statusCards.slice(-4);
+    html = `
+        <div class="carousel-item">
+            <div class="row g-3 quick-view-slide">
+    ` + lastFourCards.map(card => `
+                <div class="col-lg-3 col-md-6 col-sm-12">
+                    <div class="card quick-view-card h-100 shadow-sm" 
+                         onclick="filterByStatus('${card.statusFilter}')" 
+                         id="card-${card.id}-clone">
+                        <div class="card-body text-center">
+                            <i class="bi ${card.icon} fs-2 text-${card.colorClass} mb-3 d-block"></i>
+                            <h3 class="mb-2 text-${card.colorClass}">${card.count}</h3>
+                            <p class="card-text text-muted mb-0">${card.title}</p>
+                        </div>
+                    </div>
+                </div>
+    `).join('') + `
+            </div>
+        </div>
+    ` + html;
+
     html += `
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#quickViewCarousel" data-bs-slide="prev">
@@ -324,6 +379,31 @@ function renderQuickViewCards(data) {
     `;
 
     container.innerHTML = html;
+
+    // JavaScript to handle seamless looping
+    const carousel = document.getElementById('quickViewCarousel');
+    carousel.addEventListener('slid.bs.carousel', function (e) {
+        const items = carousel.querySelectorAll('.carousel-item');
+        const totalItems = items.length;
+        const activeIndex = Array.from(items).indexOf(carousel.querySelector('.carousel-item.active'));
+
+        // If on the cloned first slide (index 0), jump to the real first slide
+        if (activeIndex === 0) {
+            carousel.querySelector('.carousel-inner').style.transition = 'none';
+            new bootstrap.Carousel(carousel).to(totalItems - 2); // Jump to second-to-last (real first slide)
+            setTimeout(() => {
+                carousel.querySelector('.carousel-inner').style.transition = 'transform 0.5s ease-in-out';
+            }, 0);
+        }
+        // If on the cloned last slide (last index), jump to the real last slide
+        else if (activeIndex === totalItems - 1) {
+            carousel.querySelector('.carousel-inner').style.transition = 'none';
+            new bootstrap.Carousel(carousel).to(1); // Jump to second slide (real last slide)
+            setTimeout(() => {
+                carousel.querySelector('.carousel-inner').style.transition = 'transform 0.5s ease-in-out';
+            }, 0);
+        }
+    });
 }
 
 function renderAnalytics() {
