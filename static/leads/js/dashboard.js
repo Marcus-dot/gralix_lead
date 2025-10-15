@@ -1,6 +1,6 @@
 var leads = [];
 var personnel = [];
-var products = [];  // NEW: Store products
+var products = [];
 var filteredLeads = [];
 var editingLeadId = null;
 var currentCommunicationLeadId = null;
@@ -78,7 +78,7 @@ async function loadInitialData() {
         personnel = await apiCall('/api/personnel/');
         populatePersonnelDropdowns();
 
-        // Load products - NEW
+        // Load products
         products = await apiCall('/api/products/');
         populateProductDropdown();
 
@@ -169,7 +169,6 @@ function populatePersonnelDropdowns() {
     });
 }
 
-// NEW: Populate product dropdown
 function populateProductDropdown() {
     var dropdown = document.getElementById('product');
     if (dropdown) {
@@ -184,67 +183,147 @@ function populateProductDropdown() {
 }
 
 function renderAll() {
-    renderQuickViewCards();
+    renderQuickViewCards(analytics);
     renderAnalytics();
     renderLeadsTable();
     updateResultsCount();
 }
 
-function renderQuickViewCards() {
-    var html = '';
-    var cards = [
+function renderQuickViewCards(data) {
+    const container = document.getElementById('quickViewCards');
+
+    const statusCards = [
         {
-            key: 'all',
-            label: 'All Leads',
-            count: leads.length,
-            color: 'primary',
-            icon: 'people'
+            id: 'all',
+            title: 'All Leads',
+            count: data.total_leads || 0,
+            icon: 'bi-grid-3x3-gap',
+            colorClass: 'primary',
+            statusFilter: 'all'
         },
         {
-            key: 'hot',
-            label: 'Hot Leads',
-            count: countByStatus('hot'),
-            color: 'danger',
-            icon: 'fire'
+            id: 'hot',
+            title: 'Hot Leads',
+            count: data.status_counts?.hot || 0,
+            icon: 'bi-fire',
+            colorClass: 'danger',
+            statusFilter: 'hot'
         },
         {
-            key: 'qualified',
-            label: 'Qualified',
-            count: countByStatus('qualified'),
-            color: 'success',
-            icon: 'check-circle'
+            id: 'qualified',
+            title: 'Qualified',
+            count: data.status_counts?.qualified || 0,
+            icon: 'bi-check-circle',
+            colorClass: 'success',
+            statusFilter: 'qualified'
         },
         {
-            key: 'unassigned',
-            label: 'Unassigned',
-            count: countUnassigned(),
-            color: 'warning',
-            icon: 'person-x'
+            id: 'contacted',
+            title: 'Contacted',
+            count: data.status_counts?.contacted || 0,
+            icon: 'bi-telephone',
+            colorClass: 'info',
+            statusFilter: 'contacted'
         },
         {
-            key: 'high-priority',
-            label: 'High Priority',
-            count: countByPriority('high'),
-            color: 'info',
-            icon: 'star'
+            id: 'proposal',
+            title: 'Proposal Sent',
+            count: data.status_counts?.proposal || 0,
+            icon: 'bi-file-earmark-text',
+            colorClass: 'primary',
+            statusFilter: 'proposal'
+        },
+        {
+            id: 'negotiation',
+            title: 'Negotiations',
+            count: data.status_counts?.negotiation || 0,
+            icon: 'bi-chat-dots',
+            colorClass: 'warning',
+            statusFilter: 'negotiation'
+        },
+        {
+            id: 'won',
+            title: 'Won',
+            count: data.status_counts?.won || 0,
+            icon: 'bi-trophy',
+            colorClass: 'success',
+            statusFilter: 'won'
+        },
+        {
+            id: 'lost',
+            title: 'Lost',
+            count: data.status_counts?.lost || 0,
+            icon: 'bi-x-circle',
+            colorClass: 'secondary',
+            statusFilter: 'lost'
+        },
+        {
+            id: 'unassigned',
+            title: 'Unassigned',
+            count: data.unassigned_leads || 0,
+            icon: 'bi-person-x',
+            colorClass: 'warning',
+            statusFilter: 'unassigned'
+        },
+        {
+            id: 'priority',
+            title: 'High Priority',
+            count: data.high_priority || 0,
+            icon: 'bi-star',
+            colorClass: 'info',
+            statusFilter: 'priority'
         }
     ];
 
-    for (var i = 0; i < cards.length; i++) {
-        var card = cards[i];
-        var activeClass = currentView === card.key ? 'active' : '';
-        var textClass = currentView === card.key ? 'text-light' : 'text-' + card.color;
+    let html = `
+        <div id="quickViewCarousel" class="carousel slide quick-view-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-inner">
+    `;
 
-        html += '<div class="col-md-3 mb-3 col-lg-2">';
-        html += '<div class="card quick-view-card ' + activeClass + '" onclick="setCurrentView(\'' + card.key + '\')">';
-        html += '<div class="card-body text-center">';
-        html += '<i class="bi bi-' + card.icon + ' fs-1 ' + textClass + ' mb-2"></i>';
-        html += '<h3 class="card-title ' + textClass + '">' + card.count + '</h3>';
-        html += '<p class="card-text ' + (currentView === card.key ? 'text-light' : 'text-muted') + '">' + card.label + '</p>';
-        html += '</div></div></div>';
+    // Group cards into slides (3 cards per slide for responsive display)
+    for (let i = 0; i < statusCards.length; i += 3) {
+        const isActive = i === 0 ? 'active' : '';
+        html += `
+            <div class="carousel-item ${isActive}">
+                <div class="row g-3 quick-view-slide">
+        `;
+        // Add up to 3 cards per slide
+        for (let j = i; j < i + 3 && j < statusCards.length; j++) {
+            const card = statusCards[j];
+            html += `
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="card quick-view-card h-100 shadow-sm" 
+                         onclick="filterByStatus('${card.statusFilter}')" 
+                         id="card-${card.id}">
+                        <div class="card-body text-center">
+                            <i class="bi ${card.icon} fs-2 text-${card.colorClass} mb-3 d-block"></i>
+                            <h3 class="mb-2 text-${card.colorClass}">${card.count}</h3>
+                            <p class="card-text text-muted mb-0">${card.title}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        html += `
+                </div>
+            </div>
+        `;
     }
 
-    document.getElementById('quickViewCards').innerHTML = html;
+    html += `
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#quickViewCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#quickViewCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    `;
+
+    container.innerHTML = html;
 }
 
 function renderAnalytics() {
@@ -289,7 +368,7 @@ function renderAnalytics() {
 
     for (var i = 0; i < divisions.length; i++) {
         var div = divisions[i];
-        var divisionData = analytics.division_performance[div.key] || { count: 0, revenue: 0 };
+        var divisionData = analytics.division_performance?.[div.key] || { count: 0, revenue: 0 };
 
         divisionHtml += '<div class="col-12">';
         divisionHtml += '<div class="card analytics-card ' + div.color + '">';
@@ -435,7 +514,6 @@ function renderLeadsTable() {
 
         html += '<td><span class="badge division-' + lead.division + '">' + getDivisionLabel(lead.division) + '</span></td>';
 
-        // Product column
         html += '<td class="text-center">';
         if (lead.product_name) {
             html += '<span class="badge bg-secondary">' + lead.product_name + '</span>';
@@ -458,7 +536,6 @@ function renderLeadsTable() {
 
         html += '<td><strong>' + formatCurrency(lead.deal_value) + '</strong></td>';
 
-        // 🆕 NEW: Probability of Completion column
         html += '<td class="text-center">';
         var probability = lead.probability_of_completion !== undefined ? lead.probability_of_completion : 0;
         var probabilityColor = probability >= 70 ? 'success' : probability >= 40 ? 'warning' : 'secondary';
@@ -536,7 +613,6 @@ async function showLeadDetail(leadId) {
     html += '<div class="col-md-4 text-end">';
     html += '<h3 class="text-success mb-2">' + formatCurrency(lead.deal_value) + '</h3>';
 
-    // 🆕 NEW: Show probability in detail modal
     var probability = lead.probability_of_completion !== undefined ? lead.probability_of_completion : 0;
     var probabilityColor = probability >= 70 ? 'success' : probability >= 40 ? 'warning' : 'secondary';
     html += '<div class="mb-2">';
@@ -625,7 +701,6 @@ async function showLeadDetail(leadId) {
     html += '</div>';
     html += '</div>';
     html += '</div>';
-    html += '</div>';
 
     if (lead.comments) {
         html += '<div class="card mb-4">';
@@ -676,7 +751,7 @@ async function showLeadDetail(leadId) {
     new bootstrap.Modal(document.getElementById('leadDetailModal')).show();
 }
 
-function navigateLead(direction) {
+async function navigateLead(direction) {
     var currentIndex = -1;
     for (var i = 0; i < filteredLeads.length; i++) {
         if (filteredLeads[i].id === currentDetailLeadId) {
@@ -762,7 +837,7 @@ function clearFilters() {
 
 function setCurrentView(view) {
     currentView = view;
-    renderQuickViewCards();
+    renderQuickViewCards(analytics);
     applyFilters();
 }
 
@@ -810,6 +885,39 @@ function updateSelectAllState() {
     }
 }
 
+function filterByStatus(status) {
+    console.log('Filtering by status:', status);
+
+    document.querySelectorAll('.quick-view-card').forEach(card => {
+        card.classList.remove('active');
+    });
+
+    const cardId = status === 'all' ? 'card-all' :
+        status === 'unassigned' ? 'card-unassigned' :
+            status === 'priority' ? 'card-priority' :
+                `card-${status}`;
+
+    const activeCard = document.getElementById(cardId);
+    if (activeCard) {
+        activeCard.classList.add('active');
+    }
+
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        if (status === 'all') {
+            statusFilter.value = 'all';
+        } else if (status === 'unassigned') {
+            statusFilter.value = 'all';
+        } else if (status === 'priority') {
+            statusFilter.value = 'all';
+        } else {
+            statusFilter.value = status;
+        }
+    }
+
+    applyFilters();
+}
+
 function showAddForm() {
     editingLeadId = null;
     document.getElementById('modalTitle').textContent = 'Add New Lead';
@@ -842,7 +950,6 @@ async function saveLead() {
         return;
     }
 
-    // 🆕 NEW: Validate probability field
     var probabilityValue = document.getElementById('probabilityOfCompletion').value;
     if (probabilityValue === '') {
         alert('Please select a probability of completion');
@@ -862,7 +969,7 @@ async function saveLead() {
         product: productValue ? parseInt(productValue) : null,
         priority: document.getElementById('priority').value,
         deal_value: parseFloat(document.getElementById('dealValue').value) || 0,
-        probability_of_completion: parseInt(probabilityValue),  // 🆕 NEW: Include probability
+        probability_of_completion: parseInt(probabilityValue),
         comments: document.getElementById('comments').value.trim(),
         assigned_to: parseInt(assignedTo)
     };
@@ -1221,7 +1328,7 @@ function clearForm() {
     document.getElementById('assignedTo').value = '';
     document.getElementById('priority').value = 'medium';
     document.getElementById('dealValue').value = '';
-    document.getElementById('probabilityOfCompletion').value = '0';  // 🆕 NEW: Clear probability (default to 0%)
+    document.getElementById('probabilityOfCompletion').value = '0';
     document.getElementById('comments').value = '';
 }
 
@@ -1236,7 +1343,7 @@ function populateForm(lead) {
     document.getElementById('assignedTo').value = lead.assigned_to || '';
     document.getElementById('priority').value = lead.priority || 'medium';
     document.getElementById('dealValue').value = lead.deal_value || '';
-    document.getElementById('probabilityOfCompletion').value = lead.probability_of_completion !== undefined ? lead.probability_of_completion : '0';  // 🆕 NEW: Populate probability
+    document.getElementById('probabilityOfCompletion').value = lead.probability_of_completion !== undefined ? lead.probability_of_completion : '0';
     document.getElementById('comments').value = lead.comments || '';
 }
 
@@ -1339,31 +1446,23 @@ function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// ============================================
-// THEME TOGGLE FUNCTIONALITY
-// ============================================
-
 function toggleTheme() {
     const html = document.documentElement;
     const currentTheme = html.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     const themeIcon = document.getElementById('themeIcon');
 
-    // Set new theme
     html.setAttribute('data-theme', newTheme);
 
-    // Update icon with animation
     if (newTheme === 'light') {
         themeIcon.className = 'bi bi-sun-fill';
     } else {
         themeIcon.className = 'bi bi-moon-fill';
     }
 
-    // Save preference to localStorage
     localStorage.setItem('gralix-theme', newTheme);
 }
 
-// Initialize theme on page load
 document.addEventListener('DOMContentLoaded', function () {
     const savedTheme = localStorage.getItem('gralix-theme') || 'dark';
     const themeIcon = document.getElementById('themeIcon');
